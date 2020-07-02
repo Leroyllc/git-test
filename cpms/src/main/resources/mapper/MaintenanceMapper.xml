@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hnit.llc.cpms.dao.MaintenanceMapper">
+    <select id="listMaintenancePage" resultType="Maintenance">
+        SELECT * FROM maintenance m LEFT JOIN owner o
+        ON m.ownerId = o.ownerId
+        <where>
+            <if test="ownerName != NULL and ownerName != ''">
+                o.ownerName LIKE '%${ownerName}%'
+            </if>
+        </where>
+        limit #{page}, #{size}
+    </select>
+
+    <select id="getMaintenanceCount" resultType="hnit.llc.cpms.vo.MaintenanceVo">
+        SELECT COUNT(o.ownerId) mcount, o.ownerName FROM maintenance m LEFT JOIN owner o
+        ON  m.ownerId = o.ownerId
+        GROUP BY ownerName
+    </select>
+</mapper>

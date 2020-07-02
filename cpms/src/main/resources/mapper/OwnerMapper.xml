@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hnit.llc.cpms.dao.OwnerMapper">
+    <select id="listOwnerPage" resultType="Owner">
+        SELECT * FROM owner o LEFT JOIN house h on o.houseId = h.houseId
+        LEFT JOIN building b ON h.buId = b.buId
+        LEFT JOIN carsite c ON c.ownerId = o.ownerId
+        <where>
+            <if test="ownerName != null and ownerName !=''">
+                o.ownerName LIKE '%${ownerName}%'
+            </if>
+        </where>
+        limit #{page}, #{size}
+    </select>
+    
+    <select id="getOwner" resultType="Owner">
+        SELECT * FROM owner o LEFT JOIN house h
+        ON o.houseId = h.houseId
+        WHERE h.houseId = #{houseId}
+    </select>
+</mapper>

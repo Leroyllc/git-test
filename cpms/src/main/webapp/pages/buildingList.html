@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>楼栋</title>
+    <link rel="stylesheet" type="text/css" href="../easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../easyui/themes/icon.css">
+    <script type="text/javascript" src="../easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../easyui/jquery.easyui.mobile.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            //表单自定义验证
+            $.extend($.fn.validatebox.defaults.rules, {
+                buNumber: {
+                    validator: function(value){
+                        return /^\d{1}$/.test(value);
+                    },
+                    message: '只能输入1位数字作为楼栋编号'
+                },
+                buUnit: {
+                    validator: function(value){
+                        return /^\d{1}$/.test(value);
+                    },
+                    message: '只能输入1位数字作为单元号'
+                }
+            });
+
+            //条件查询
+            $("#but-search").click(function(){
+                $("#dg").datagrid('load',{
+                    buNumber:$("#buNumber").val()
+                });
+            });
+
+            //查询
+            $("#dg").datagrid({
+                url:'../building/listBuildingPage',
+                toolbar:"#tb",
+                pagination:true,
+                pagePosition:'both',
+                fitColumns:true,
+                fit:true,
+                columns:[[
+                    {field:'buId',title:'楼栋ID',checkbox:true},
+                    {field:'buNumber',title:'楼栋编号',width:80},
+                    {field:'buUnit',title:'楼栋单元',width:80}
+                ]]
+            });
+
+            // 添加用户信息
+            $("#but-add").click(function(){
+                $("#add-dialog").dialog({
+                    closed: false,//对话显示
+                    buttons: [{
+                        text: "保存",
+                        iconCls: "icon-save",
+                        handler: function () {
+                            $("#add-form").form("submit", {
+                                url: '../building/saveOrUpdateBuilding',
+                                onSubmit: function () {
+                                    return $("#add-form").form('validate')
+                                },
+                                success: function (flag) {
+                                    if (flag) {
+                                        $("#dg").datagrid("load");
+                                        $.messager.show({
+                                            title: "消息",
+                                            msg: '添加成功',
+                                            timeout: 5000,
+                                            showType: 'slide',
+                                            showSpeed: 800
+                                        });
+                                        $("#add-dialog").dialog({closed: true});
+                                        $("#add-form").form("clear");
+                                    } else {
+                                        $.messager.show({
+                                            title: "消息",
+                                            msg: '添加失败',
+                                            timeout: 5000,
+                                            showType: 'fade',
+                                            showSpeed: 800
+                                        });
+                                    }
+                                }
+                            })
+                        }
+                    }]
+                })
+            });
+
+            // 修改用户信息
+            $("#but-edit").click(function(){
+                // 填充修改对话框中的输入组件信息
+                if($("#dg").datagrid('getSelections').length != 1){
+                    alert("请正确选择要修改的信息");
+                }else {
+                    //填充修改表单
+                    const data =  $("#dg").datagrid('getSelected');
+                    $("#edit-form").form('load',{
+                        buId:data.buId,
+                        buNumber:data.buNumber,
+                        buUnit:data.buUnit,
+                    })
+                    // 显示修改对话框
+                    $("#edit-dialog").dialog({
+                        closed:false,//对话显示
+                        buttons:[{
+                            text:"保存",
+                            iconCls:"icon-save",
+                            handler:function () {
+                                $("#edit-form").form("submit",{
+                                    url:'../building/saveOrUpdateBuilding',
+                                    onSubmit:function () {
+                                        return $("#edit-form").form('validate')
+                                    },
+                                    success:function (flag) {
+                                        if(flag){
+                                            $("#dg").datagrid("load");
+                                            $.messager.show({
+                                                title:"消息",
+                                                msg:'修改成功',
+                                                timeout:5000,
+                                                showType:'slide',
+                                                showSpeed:800
+                                            });
+                                            $("#edit-dialog").dialog({closed:true});
+                                            $("#edit-form").form("clear");
+                                        }else {
+                                            $.messager.show({
+                                                title:"消息",
+                                                msg:'修改失败',
+                                                timeout:5000,
+                                                showType:'fade',
+                                                showSpeed:800
+                                            });
+                                        }
+                                    }
+                                })
+                            }
+                        }]
+                    })
+                }
+            });
+
+            //删除用户信息
+            $("#but-remove").click(function(){
+                if($("#dg").datagrid('getSelections').length <= 0){
+                    alert("请正确选择要删除的信息");
+                }else {
+                    const array = $("#dg").datagrid('getSelections');
+                    const buIds = [];
+                    for(var i in array){
+                        buIds.push(array[i].buId);
+                    }
+                    $.messager.confirm("警告","是否确认删除?",function(r){
+                        if(r){
+                            $.post('../building/removeBuilding',{"buIds[]":buIds},function (flag) {
+                                if(flag){
+                                    $.messager.show({
+                                        title:"消息",
+                                        msg:'删除成功',
+                                        timeout:5000,
+                                        showType:'slide',
+                                        showSpeed:800
+                                    });
+                                    $("#dg").datagrid("load");
+                                }else {
+                                    $.messager.show({
+                                        title:"消息",
+                                        msg:'删除失败',
+                                        timeout:5000,
+                                        showType:'fade',
+                                        showSpeed:800
+                                    });
+                                }
+                            })
+                        }
+                    })
+                }
+            });
+
+        });
+
+
+
+    </script>
+</head>
+<body>
+    <!--表格定义-->
+    <table id="dg"></table>
+    <!--工具栏定义-->
+    <div id="tb">
+        <table>
+            <tr>
+                <td>楼栋编号:</td>
+                <td><input id="buNumber" class="easyui-validatebox">
+                    <a id="but-search" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">查询</a>
+                </td>
+                <a id="but-add" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">添加</a>
+                <a id="but-edit" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">修改</a>
+                <a id="but-remove" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true">删除</a>
+            </tr>
+        </table>
+    </div>
+
+    <!--添加对话框-->
+    <div id="add-dialog" display="none" class="easyui-dialog" title="添加楼栋信息" style="width:auto;height:auto;"
+         data-options="modal:true,closed:true">
+        <form action="" method="post" id="add-form">
+            <table>
+                <tr>
+                    <td>楼栋编号</td>
+                    <td>
+                        <input name="buNumber" class="easyui-validatebox" data-options="required:true,validType:'buNumber'">
+                    </td>
+                </tr>
+                <tr>
+                    <td>楼栋单元</td>
+                    <td>
+                        <input name="buUnit" class="easyui-validatebox" data-options="required:true,validType:'buUnit'">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <!--修改对话框-->
+    <div id="edit-dialog" class="easyui-dialog" title="修改楼栋信息" display="none" style="width:auto;height:auto;"
+         data-options="modal:true,closed:true">
+        <form action="" method="post" id="edit-form">
+            <table>
+                <tr>
+                    <td>楼栋编号</td>
+                    <td>
+                        <input name="buNumber" class="easyui-validatebox" data-options="required:true,validType:'buNumber'">
+                        <input name="buId", type="hidden">
+                    </td>
+                </tr>
+                <tr>
+                    <td>楼栋单元</td>
+                    <td>
+                        <input name="buUnit" class="easyui-validatebox" data-options="required:true,validType:'buUnit'">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</body>
+</html>

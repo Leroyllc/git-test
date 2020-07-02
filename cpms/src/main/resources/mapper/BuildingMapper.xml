@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hnit.llc.cpms.dao.BuildingMapper">
+    <select id="getAllBuilding" resultMap="buildingMapper">
+        SELECT * FROM building b LEFT JOIN house h on b.buId = h.buId
+    </select>
+    
+    <select id="getBuilding" resultMap="buildingMapper">
+        SELECT * FROM building b LEFT JOIN house h on b.buId = h.buId WHERE b.buId = #{buId}
+    </select>
+
+    <select id="getExistHouse" resultMap="buildingMapper">
+        SELECT * FROM building b LEFT JOIN house h on b.buId = h.buId WHERE b.buId = #{buId}
+        AND h.hstatus = '已入住'
+    </select>
+    <resultMap id="buildingMapper" type="Building">
+        <id property="buId" column="buId"></id>
+        <result property="buNumber" column="buNumber"></result>
+        <result property="buUnit" column="buUnit"></result>
+        <collection property="houseList" ofType="House">
+            <id property="houseId" column="houseId"></id>
+            <result property="houseNum" column="houseNum"></result>
+            <result property="houseLevel" column="houseLevel"></result>
+            <result property="hstatus" column="hstatus"></result>
+            <result property="inTime" column="inTime"></result>
+        </collection>
+    </resultMap>
+</mapper>

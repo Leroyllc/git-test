@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>房屋</title>
+    <link rel="stylesheet" type="text/css" href="../easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../easyui/themes/icon.css">
+    <script type="text/javascript" src="../easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../easyui/jquery.easyui.mobile.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            //条件查询
+            $("#but-search").click(function(){
+                $("#dg").datagrid('load',{
+                    buNumber:$("#buNumber").val()
+                });
+            });
+
+            //查询
+            $("#dg").datagrid({
+                url:'../house/listHousePage',
+                toolbar:"#tb",
+                pagination:true,
+                pagePosition:'both',
+                fitColumns:true,
+                fit:true,
+                columns:[[
+                    {field:'houseId',title:'房屋ID',checkbox:true},
+                    {field:'buNumber',title:'楼栋',width:80},
+                    {field:'buUnit',title:'单元',width:80},
+                    {field:'houseLevel',title:'楼层',width:80},
+                    {field:'houseNum',title:'房号',width:80},
+                    {field:'hstatus',title:'是否入住',width:80, formatter:function (val,rows,index) {
+                            if(val != ''){
+                                if(val == "未入住"){
+                                    return "<span style='color:red'>未入住</span>"
+                                }else if(val == "已入住"){
+                                    return "<span style='color:green'>已入住</span>"
+                                }else {
+                                    return "<span style='color:orange'>未知</span>"
+                                }
+                            }
+                        }},
+                    {field:'inTime',title:'入住时间',width:80}
+                ]]
+            });
+
+            // 添加或修改用户信息
+            $("#but-add").click(function(){
+                $("#add-dialog").dialog({
+                    closed: false,//对话显示
+                    buttons: [{
+                        text: "保存",
+                        iconCls: "icon-save",
+                        handler: function () {
+                            $("#add-form").form("submit", {
+                                url: '../house/saveOrUpdateHouse',
+                                onSubmit: function () {
+                                    return $("#add-form").form('validate')
+                                },
+                                success: function (flag) {
+                                    if (flag) {
+                                        $("#dg").datagrid("load");
+                                        $.messager.show({
+                                            title: "消息",
+                                            msg: '添加成功',
+                                            timeout: 5000,
+                                            showType: 'slide',
+                                            showSpeed: 800
+                                        });
+                                        $("#add-dialog").dialog({closed: true});
+                                        $("#add-form").form("clear");
+                                    } else {
+                                        $.messager.show({
+                                            title: "消息",
+                                            msg: '添加失败',
+                                            timeout: 5000,
+                                            showType: 'fade',
+                                            showSpeed: 800
+                                        });
+                                    }
+                                }
+                            })
+                        }
+                    }]
+                })
+            });
+
+            // 修改用户信息
+            $("#but-edit").click(function(){
+                // 填充修改对话框中的输入组件信息
+                if($("#dg").datagrid('getSelections').length != 1){
+                    alert("请正确选择要修改的信息");
+                }else {
+                    //填充修改表单
+                    const data =  $("#dg").datagrid('getSelected');
+                    $("#edit-form").form('load',{
+                        buNumber:data.buNumber,
+                        buUnit:data.buUnit,
+                        houseLevel:data.houseLevel,
+                        houseNum:data.houseNum,
+                        hstatus:data.hstatus,
+                        inTime:data.inTime
+                    })
+                    // 显示修改对话框
+                    $("#edit-dialog").dialog({
+                        closed:false,//对话显示
+                        buttons:[{
+                            text:"保存",
+                            iconCls:"icon-save",
+                            handler:function () {
+                                $("#edit-form").form("submit",{
+                                    url:'../house/saveOrUpdateHouse',
+                                    onSubmit:function () {
+                                        return $("#edit-form").form('validate')
+                                    },
+                                    success:function (flag) {
+                                        if(flag){
+                                            $("#dg").datagrid("load");
+                                            $.messager.show({
+                                                title:"消息",
+                                                msg:'修改成功',
+                                                timeout:5000,
+                                                showType:'slide',
+                                                showSpeed:800
+                                            });
+                                            $("#edit-dialog").dialog({closed:true});
+                                            $("#edit-form").form("clear");
+                                        }else {
+                                            $.messager.show({
+                                                title:"消息",
+                                                msg:'修改失败',
+                                                timeout:5000,
+                                                showType:'fade',
+                                                showSpeed:800
+                                            });
+                                        }
+                                    }
+                                })
+                            }
+                        }]
+                    })
+                }
+            });
+
+            //删除用户信息
+            $("#but-remove").click(function(){
+                if($("#dg").datagrid('getSelections').length <= 0){
+                    alert("请正确选择要删除的信息");
+                }else {
+                    const array = $("#dg").datagrid('getSelections');
+                    const houseIds = [];
+                    for(var i in array){
+                        houseIds.push(array[i].houseId);
+                    }
+                    $.messager.confirm("警告","是否确认删除?",function(r){
+                        if(r){
+                            $.post('../house/removeHouse',{"houseIds[]":houseIds},function (flag) {
+                                if(flag){
+                                    $.messager.show({
+                                        title:"消息",
+                                        msg:'删除成功',
+                                        timeout:5000,
+                                        showType:'slide',
+                                        showSpeed:800
+                                    });
+                                    $("#dg").datagrid("load");
+                                }else {
+                                    $.messager.show({
+                                        title:"消息",
+                                        msg:'删除失败',
+                                        timeout:5000,
+                                        showType:'fade',
+                                        showSpeed:800
+                                    });
+                                }
+                            })
+                        }
+                    })
+                }
+            });
+
+        });
+
+
+
+    </script>
+</head>
+<body>
+    <!--表格定义-->
+    <table id="dg"></table>
+    <!--工具栏定义-->
+    <div id="tb">
+        <table>
+            <tr>
+                <td>楼栋编号:</td>
+                <td><input id="buNumber" class="easyui-validatebox">
+                    <a id="but-search" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">查询</a>
+                </td>
+                <a id="but-add" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">添加</a>
+                <a id="but-edit" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">修改</a>
+                <a id="but-remove" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true">删除</a>
+            </tr>
+        </table>
+    </div>
+
+    <!--添加对话框-->
+    <div id="add-dialog" class="easyui-dialog" title="添加房屋信息" style="width:auto;height:auto;"
+         data-options="modal:true,closed:true">
+        <form action="" method="post" id="add-form">
+            <table>
+                <tr>
+                    <td>楼&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp栋</td>
+                    <td>
+                        <select name="buId" class="easyui-combogrid"
+                                data-options="
+                                panelWidth:200,
+                                idField:'buId',
+                                textField:'buNumber',
+                                fit:true,
+                                fitColumns:true,
+                                pagination:true,
+                                pagePosition:'bottom',
+                                url:'../building/listBuildingPage',
+                                columns:[[
+                                {field:'buId',title:'楼栋',checkbox:true},
+                                {field:'buNumber',title:'楼栋',width:50},
+                                {field:'buUnit',title:'单元',width:50}
+                                ]]">
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>所在楼层</td>
+                    <td>
+                        <select name="houseLevel" class="easyui-combobox" data-options="required:true" style="width: 180px">
+                            <option value="">请选择楼层</option>
+                            <option value="1">1楼</option>
+                            <option value="2">2楼</option>
+                            <option value="3">3楼</option>
+                            <option value="4">4楼</option>
+                            <option value="5">5楼</option>
+                            <option value="6">6楼</option>
+                            <option value="7">7楼</option>
+                            <option value="8">8楼</option>
+                        </select>
+                    </td>
+                    <td>房屋编号</td>
+                    <td>
+                        <input name="houseNum" class="easyui-validatebox" style="width: 180px">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <!--修改对话框-->
+    <div id="edit-dialog" class="easyui-dialog" title="修改房屋信息" style="width:auto;height:auto;"
+         data-options="modal:true,closed:true">
+        <form action="" method="post" id="edit-form">
+            <table>
+                <tr>
+                    <td>楼&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp栋</td>
+                    <td>
+                        <select name="buId" class="easyui-combogrid"
+                                data-options="
+                                panelWidth:200,
+                                idField:'buId',
+                                textField:'buNumber',
+                                fit:true,
+                                fitColumns:true,
+                                pagination:true,
+                                pagePosition:'both',
+                                url:'../building/listBuildingPage',
+                                columns:[[
+                                {field:'buId',title:'楼栋ID',checkbox:true},
+                                {field:'buNumber',title:'楼栋',width:50},
+                                {field:'buUnit',title:'单元',width:50}
+                                ]]">
+                        </select>
+                    </td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>所在楼层</td>
+                    <td>
+                        <select name="houseLevel" class="easyui-combobox" data-options="required:true" style="width: 180px">
+                            <option value="">请选择楼层</option>
+                            <option value="1">1楼</option>
+                            <option value="2">2楼</option>
+                            <option value="3">3楼</option>
+                            <option value="4">4楼</option>
+                            <option value="5">5楼</option>
+                            <option value="6">6楼</option>
+                            <option value="7">7楼</option>
+                            <option value="8">8楼</option>
+                        </select>
+                    </td>
+                    <td>房屋编号</td>
+                    <td>
+                        <input name="houseId", type="hidden">
+                        <input name="houseNum" class="easyui-validatebox" style="width: 180px">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</body>
+</html>

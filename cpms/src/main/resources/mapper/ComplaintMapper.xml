@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hnit.llc.cpms.dao.ComplaintMapper">
+    <select id="listComplaintPage" resultType="Complaint">
+        SELECT * FROM complaint c LEFT JOIN owner o
+        ON c.ownerId = o.ownerId
+        <where>
+            <if test="ownerName != NULL and ownerName != ''">
+                o.ownerName LIKE '%${ownerName}%'
+            </if>
+        </where>
+        limit #{page}, #{size}
+    </select>
+
+    <select id="getComplaintCount" resultType="hnit.llc.cpms.vo.ComplaintVo">
+        SELECT COUNT(o.ownerId) ccount, o.ownerName FROM complaint c LEFT JOIN owner o
+        ON  c.ownerId = o.ownerId
+        GROUP BY ownerName
+    </select>
+</mapper>

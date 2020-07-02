@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>投诉统计</title>
+    <script type="text/javascript" src="../easyui/echarts/jquery.min.js"></script>
+    <script type="text/javascript" src="../easyui/echarts/echarts.js"></script>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width: 600px;height:400px;"></div>
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        $.post("../maintenance/getMaintenanceCount",function (data) {
+            //业主名称数组
+            const ownerNames=[];
+
+            //统计次数数组
+            const counts = [];
+
+            //初始化数组数据
+            for(var i in data){
+                ownerNames.push(data[i].ownerName);
+                counts.push(data[i].mcount);
+            }
+
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: '业主报修次数统计'
+                },
+                tooltip: {},
+                legend: {
+                    data:['业主报修次数统计']
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ownerNames,
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    name: '报修次数',
+                    type: 'bar',
+                    data: counts
+                }]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        });
+
+
+    </script>
+</body>
+</html>

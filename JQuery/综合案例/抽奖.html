@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>抽奖案例</title>
+    <script src="../js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript">
+        var imgs = ["../img/man00.jpg",
+                    "../img/man01.jpg",
+                    "../img/man02.jpg",
+                    "../img/man03.jpg",
+                    "../img/man04.jpg",
+                    "../img/man05.jpg",
+                    "../img/man06.jpg"];
+
+        var startId;
+        $(function () {
+            $("#startID").prop("disabled",false);
+            $("#stopID").prop("disabled",true);
+
+            //给开始按钮绑定单击事件
+            $("#startID").click(function () {
+               startId = setInterval(function () {
+                  //生成随机角标
+                  var index = Math.floor(Math.random() * 7);
+                   //设置小相框的src属性
+                   $("#img1ID").prop("src",imgs[index]);
+                   $("#img2ID").prop("src",imgs[index]);
+               },20);
+                // 将按钮关闭
+                $(this).prop("disabled",true);
+                $("#stopID").prop("disabled",false);
+            });
+            //给结束按钮绑定单击事件
+
+            $("#stopID").click(function () {
+                //停止定时器
+                clearInterval(startId);
+                $(this).prop("disabled",true);
+                $("#startID").prop("disabled",false);
+            });
+        });
+
+
+    </script>
+</head>
+<body>
+<!--小相框-->
+    <div style="width: 160px;height: 100px;border-style: dotted">
+        <img id="img1ID" src="../img/man00.jpg" style="width: 160px;height: 100px">
+    </div>
+<!--大相框-->
+    <div style="border-style: solid;width: 800px;height: 500px;position: absolute; left: 350px;">
+        <img id="img2ID" src="../img/man00.jpg" style="width: 800px;height: 500px">
+    </div>
+
+<!--开始按钮-->
+    <input id="startID" type="button" style="width: 150px;height: 150px;font-size: 22px;" value="点击开始"></input>
+
+<!--停止按钮-->
+    <input id="stopID" type="button" style="width: 150px;height: 150px;font-size: 22px;" value="点击停止"></input>
+</body>
+</html>

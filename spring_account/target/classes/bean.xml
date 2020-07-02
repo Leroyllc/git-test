@@ -1,0 +1,44 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--配置service-->
+    <bean id="accountService" class="cn.service.impl.AccountServiceImpl_OLD">
+        <!--注入dao-->
+        <property name="accountDao" ref="accountDao"></property>
+        <!--注入事务管理器-->
+        <property name="tm" ref="txManager"></property>
+    </bean>
+
+    <!--配置dao-->
+    <bean id="accountDao" class="cn.dao.impl.AccountDaoImpl">
+        <!--注入runner-->
+        <property name="runner" ref="runner"></property>
+
+        <!--注入connectionUtils-->
+        <property name="connectionUtils" ref="connectionUtils"></property>
+    </bean>
+
+    <!--配置runner-->
+    <bean id="runner" class="org.apache.commons.dbutils.QueryRunner" scope="prototype"></bean>
+
+    <!--配置ds-->
+    <bean id="dataSources" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/spring"></property>
+        <property name="user" value="root"></property>
+        <property name="password" value="root"></property>
+    </bean>
+
+    <!--配置connection工具类-->
+    <bean id="connectionUtils" class="cn.utils.ConnectionUtils">
+        <!--注入数据源-->
+        <property name="dataSource" ref="dataSources"></property>
+    </bean>
+
+    <!--配置事务管理器-->
+    <bean id="txManager" class="cn.utils.TransactionManager">
+        <!--注入connectionUtils-->
+        <property name="cu" ref="connectionUtils"></property>
+    </bean>
+</beans>

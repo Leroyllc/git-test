@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>04-json数据语法</title>
+    <script>
+        var person = {
+            "name": "zhangsan",
+            'age': 23,
+            gender: '男'
+        };
+
+        var persons =[
+                {"name":"zhangsan", "age":23, "gender":true},
+                {"name":"lisi", "age":24, "gender":true},
+                {"name":"wangwu", "age":25, "gender":false}
+            ];
+
+        // for(var key in person){
+        //     alert(key  +":"+ person[key]);
+        // }
+
+        for(var i = 0; i < persons.length; i++){
+            var p = persons[i];
+            for(var key in p){
+                alert(key+":"+p[key]);
+            }
+        }
+    </script>
+</head>
+<body>
+
+</body>
+</html>

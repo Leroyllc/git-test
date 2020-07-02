@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="accountService" class="cn.service.impl.AccountServiceImpl">
+        <constructor-arg name="name" value="张三"></constructor-arg>
+        <constructor-arg name="age" value="23"></constructor-arg>
+        <constructor-arg name="birthday" ref="now"></constructor-arg>
+    </bean>
+    <bean id="now" class="java.util.Date"></bean>
+
+    <bean id="accountService2" class="cn.service.impl.AccountServiceImpl2">
+        <property name="name" value="李四"></property>
+        <property name="age" value="23"></property>
+        <property name="birthday" ref="now"></property>
+    </bean>
+
+    <bean id="accountService3" class="cn.service.impl.AccountServiceImpl3">
+        <property name="myList">
+            <list>
+                <value>aaa</value>
+                <value>bbb</value>
+                <value>ccc</value>
+                <value>ddd</value>
+            </list>
+        </property>
+        <property name="mySet">
+            <set>
+                <value>aaa</value>
+                <value>bbb</value>
+                <value>ccc</value>
+                <value>ddd</value>
+            </set>
+        </property>
+        <property name="strs">
+            <array>
+                <value>aaa</value>
+                <value>bbb</value>
+                <value>ccc</value>
+                <value>ddd</value>
+            </array>
+        </property>
+        <property name="myMap">
+            <map>
+                <entry key="testA" value="AAA"></entry>
+                <entry key="testB" value="BBB"></entry>
+            </map>
+        </property>
+        <property name="myProp">
+            <props>
+                <prop key="testC">CCC</prop>
+                <prop key="testD">DDD</prop>
+            </props>
+        </property>
+    </bean>
+</beans>
